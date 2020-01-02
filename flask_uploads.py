@@ -383,12 +383,13 @@ class UploadSet(object):
     def get_basename(self, filename):
         return lowercase_ext(secure_filename(filename))
 
-    def save(self, storage, folder=None, name=None):
+    def save(self, storage, folder=None, name=None, overwrite=False):
         """
         This saves a `werkzeug.FileStorage` into this upload set. If the
         upload is not allowed, an `UploadNotAllowed` error will be raised.
         Otherwise, the file will be saved and its name (including the folder)
-        will be returned.
+        will be returned. If there is an existing file, the conflict will be
+        resolved by creating new name for the new file.
 
         :param storage: The uploaded file to save.
         :param folder: The subfolder within the upload set to save to.
@@ -397,6 +398,8 @@ class UploadSet(object):
                      are using `name`, you can include the folder in the
                      `name` instead of explicitly using `folder`, i.e.
                      ``uset.save(file, name="someguy/photo_123.")``
+        :param overwrite: Overwrite an existing file with new file instead of
+                          renaming the new file.
         """
         if not isinstance(storage, FileStorage):
             raise TypeError("storage must be a werkzeug.FileStorage")
@@ -421,7 +424,10 @@ class UploadSet(object):
         if not os.path.exists(target_folder):
             os.makedirs(target_folder)
         if os.path.exists(os.path.join(target_folder, basename)):
-            basename = self.resolve_conflict(target_folder, basename)
+            if overwrite is not None and overwrite is True:
+                os.remove(os.path.join(target_folder, basename))
+            else:
+                basename = self.resolve_conflict(target_folder, basename)
 
         target = os.path.join(target_folder, basename)
         storage.save(target)

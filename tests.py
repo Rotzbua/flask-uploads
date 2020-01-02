@@ -289,6 +289,13 @@ class TestConflictResolution(object):
         res = uset.save(tfs)
         assert res == 'foo_1'
 
+    def test_overwrite(self):
+        uset = UploadSet('files')
+        uset._config = Config('/uploads')
+        tfs = TestingFileStorage(filename='foo.txt')
+        self.extant('/uploads/foo.txt')
+        res = uset.save(tfs, overwrite=True)
+        assert res == 'foo.txt'
 
 class TestPathsAndURLs(object):
     def test_path(self):
