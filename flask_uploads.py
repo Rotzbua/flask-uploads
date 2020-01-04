@@ -423,14 +423,13 @@ class UploadSet(object):
             target_folder = self.config.destination
         if not os.path.exists(target_folder):
             os.makedirs(target_folder)
-        if os.path.exists(os.path.join(target_folder, basename)):
-            if overwrite is not None and overwrite is True:
-                os.remove(os.path.join(target_folder, basename))
-            else:
-                basename = self.resolve_conflict(target_folder, basename)
 
         target = os.path.join(target_folder, basename)
-        storage.save(target)
+        if os.path.exists(target) and overwrite is not True:
+            basename = self.resolve_conflict(target_folder, basename)
+            target = os.path.join(target_folder, basename)
+        storage.save(target)  # save() overwrites file
+
         if folder:
             return posixpath.join(folder, basename)
         else:
