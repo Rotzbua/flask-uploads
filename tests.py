@@ -297,6 +297,7 @@ class TestConflictResolution(object):
         res = uset.save(tfs, overwrite=True)
         assert res == 'foo.txt'
 
+
 class TestPathsAndURLs(object):
     def test_path(self):
         uset = UploadSet('files')
